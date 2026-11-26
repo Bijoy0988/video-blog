@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>আমার ভিডিও ব্লগ</title>
+<meta name="description" content="আমার ভিডিও ব্লগে দেখুন সেরা সব ভিডিও">
+<!-- Google AdSense: অনুমোদন পাওয়ার পর নিচের লাইনের আনকমেন্ট করে আপনার ID বসান -->
+<!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+<style>
+  :root{--bg:#f6f7fb;--card:#fff;--text:#1a1d29;--muted:#667085;--accent:#e11d48;--border:#e5e7eb}
+  @media (prefers-color-scheme:dark){:root{--bg:#0f1117;--card:#181b25;--text:#eef0f6;--muted:#9aa3b5;--border:#272b38}}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Noto Sans Bengali","Hind Siliguri",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+  header{background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+  .bar{display:flex;align-items:center;gap:12px;padding:12px 0;flex-wrap:wrap}
+  .logo{font-size:1.3rem;font-weight:700;color:var(--accent);text-decoration:none}
+  #search{flex:1;min-width:180px;padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:var(--bg);color:var(--text);font:inherit}
+  .cats{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px}
+  .cats button{white-space:nowrap;border:1px solid var(--border);background:var(--card);color:var(--text);padding:6px 14px;border-radius:999px;cursor:pointer;font:inherit}
+  .cats button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .ad{margin:20px 0;min-height:90px;border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.85rem;text-align:center;overflow:hidden}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px;margin:20px 0}
+  .card{background:var(--card);border-radius:12px;overflow:hidden;cursor:pointer;border:1px solid var(--border);transition:transform .15s}
+  .card:hover{transform:translateY(-3px)}
+  .thumb{position:relative;aspect-ratio:16/9;background:#000}
+  .thumb img{width:100%;height:100%;object-fit:cover;display:block}
+  .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+  .play span{background:rgba(0,0,0,.65);color:#fff;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem}
+  .info{padding:12px 14px}
+  .info h3{font-size:1rem;margin-bottom:4px}
+  .meta{font-size:.8rem;color:var(--muted)}
+  .empty{text-align:center;color:var(--muted);padding:60px 0}
+  #modal{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 12px;z-index:50}
+  #modal.open{display:flex}
+  .box{background:var(--card);width:100%;max-width:860px;border-radius:12px;overflow:hidden}
+  .player{aspect-ratio:16/9;background:#000}
+  .player iframe,.player video{width:100%;height:100%;border:0}
+  .detail{padding:16px}
+  .detail h2{margin-bottom:6px}
+  .close{float:right;background:none;border:0;color:var(--muted);font-size:1.6rem;cursor:pointer}
+  footer{text-align:center;color:var(--muted);font-size:.85rem;padding:30px 16px}
+  footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="bar">
+      <a class="logo" href="./">▶ আমার ভিডিও ব্লগ</a>
+      <input id="search" type="search" placeholder="ভিডিও খুঁজুন...">
+    </div>
+    <div class="cats" id="cats"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- বিজ্ঞাপন স্লট ১ (উপরে) -->
+  <div class="ad" id="ad-top">বিজ্ঞাপনের জায়গা</div>
+  <div class="grid" id="grid"></div>
+  <!-- বিজ্ঞাপন স্লট ২ (নিচে) -->
+  <div class="ad" id="ad-bottom">বিজ্ঞাপনের জায়গা</div>
+</main>
+
+<div id="modal">
+  <div class="box">
+    <div class="player" id="player"></div>
+    <div class="detail">
+      <button class="close" id="close" aria-label="বন্ধ করুন">×</button>
+      <h2 id="m-title"></h2>
+      <p class="meta" id="m-meta"></p>
+      <p id="m-desc" style="margin-top:10px"></p>
+      <!-- বিজ্ঞাপন স্লট ৩ (প্লেয়ারের নিচে) -->
+      <div class="ad" id="ad-player">বিজ্ঞাপনের জায়গা</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  © <span id="yr"></span> আমার ভিডিও ব্লগ ·
+  <a href="privacy.html">প্রাইভেসি পলিসি</a> ·
+  <a href="contact.html">যোগাযোগ</a>
+</footer>
+
+<script>
+/* ============================================================
+   ভিডিও যোগ করতে শুধু এই তালিকায় নতুন লাইন যোগ করুন।
+   - YouTube ভিডিওর জন্য:  yt: "ভিডিও আইডি"
+     (লিংক youtube.com/watch?v=ABC123 হলে আইডি হলো ABC123)
+   - নিজের ভিডিও ফাইলের জন্য:  file: "videos/my-video.mp4", thumb: "images/thumb.jpg"
+   নিচের তিনটি শুধু নমুনা, এগুলো মুছে আপনার ভিডিও বসান।
+   ============================================================ */
+const VIDEOS = [
+  { title:"নমুনা ভিডিও ১", cat:"বিনোদন", date:"2026-11-20", desc:"এখানে ভিডিওর বর্ণনা লিখুন।", yt:"aqz-KE-bpKQ" },
+  { title:"নমুনা ভিডিও ২", cat:"শিক্ষা",  date:"2026-11-18", desc:"এখানে ভিডিওর বর্ণনা লিখুন।", yt:"aqz-KE-bpKQ" },
+  { title:"নমুনা ভিডিও ৩", cat:"ভ্রমণ",   date:"2026-11-15", desc:"এখানে ভিডিওর বর্ণনা লিখুন।", yt:"aqz-KE-bpKQ" }
+];
+
+const $ = id => document.getElementById(id);
+let cat = "সব", q = "";
+$("yr").textContent = new Date().getFullYear();
+
+const thumbOf = v => v.thumb || (v.yt ? `https://i.ytimg.com/vi/${v.yt}/hqdefault.jpg` : "");
+const fmt = d => new Date(d).toLocaleDateString("bn-BD",{year:"numeric",month:"long",day:"numeric"});
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function renderCats(){
+  const cats = ["সব", ...new Set(VIDEOS.map(v=>v.cat))];
+  $("cats").innerHTML = cats.map(c=>`<button class="${c===cat?"on":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+}
+function renderGrid(){
+  const list = VIDEOS.map((v,i)=>({...v,i}))
+    .filter(v=>(cat==="সব"||v.cat===cat) && (v.title+v.desc).toLowerCase().includes(q))
+    .sort((a,b)=>new Date(b.date)-new Date(a.date));
+  $("grid").innerHTML = list.length ? list.map(v=>`
+    <article class="card" data-i="${v.i}">
+      <div class="thumb"><img loading="lazy" src="${esc(thumbOf(v))}" alt="${esc(v.title)}">
+        <div class="play"><span>▶</span></div></div>
+      <div class="info"><h3>${esc(v.title)}</h3><div class="meta">${esc(v.cat)} · ${fmt(v.date)}</div></div>
+    </article>`).join("") : `<div class="empty" style="grid-column:1/-1">কোনো ভিডিও পাওয়া যায়নি</div>`;
+}
+function openVideo(i){
+  const v = VIDEOS[i];
+  $("player").innerHTML = v.yt
+    ? `<iframe src="https://www.youtube.com/embed/${encodeURIComponent(v.yt)}?autoplay=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`
+    : `<video src="${esc(v.file)}" poster="${esc(v.thumb||"")}" controls autoplay playsinline></video>`;
+  $("m-title").textContent = v.title;
+  $("m-meta").textContent = `${v.cat} · ${fmt(v.date)}`;
+  $("m-desc").textContent = v.desc || "";
+  $("modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  history.replaceState(null,"","#v"+i);
+}
+function closeVideo(){
+  $("modal").classList.remove("open");
+  $("player").innerHTML = "";
+  document.body.style.overflow = "";
+  history.replaceState(null,"",location.pathname);
+}
+$("cats").onclick = e => { const b=e.target.closest("button"); if(!b) return; cat=b.dataset.c; renderCats(); renderGrid(); };
+$("search").oninput = e => { q=e.target.value.trim().toLowerCase(); renderGrid(); };
+$("grid").onclick = e => { const c=e.target.closest(".card"); if(c) openVideo(+c.dataset.i); };
+$("close").onclick = closeVideo;
+$("modal").onclick = e => { if(e.target===$("modal")) closeVideo(); };
+document.onkeydown = e => { if(e.key==="Escape") closeVideo(); };
+
+renderCats(); renderGrid();
+const m = location.hash.match(/^#v(\d+)$/);
+if(m && VIDEOS[+m[1]]) openVideo(+m[1]);
+</script>
+</body>
+</html>
